@@ -1,0 +1,23 @@
+{
+  "name": "alumai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@google/generative-ai": "^0.15.0",
+    "@supabase/supabase-js": "^2.44.4",
+    "common-tags": "^1.8.2",
+    "deno": "^0.1.1",
+    "oneline": "^1.0.3"
+  },
+  "type": "module",
+  "devDependencies": {
+    "supabase": "^1.187.10"
+  }
+}
