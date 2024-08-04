@@ -1,9 +1,20 @@
-import { createClient } from "@supabase/supabase-js";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-import { oneLine, stripIndent } from "common-tags";
+const { createClient } = require("@supabase/supabase-js");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { oneLine, stripIndent } = require("common-tags");
+// var bodyParser = require("body-parser");
+const express = require("express");
+const cors = require("cors");
+
+const app = express();
+const port = 3005;
+app.listen(port, () => {
+  console.log(`Listening to requests on http://localhost:${port}`);
+});
+app.use(express.json());
+app.use(cors());
 
 // intialize supabase client
-export const supabaseClient = createClient(
+const supabaseClient = createClient(
   "https://qqiwyxoyegggabkrsazd.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaXd5eG95ZWdnZ2Fia3JzYXpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjEzMjgwMzEsImV4cCI6MjAzNjkwNDAzMX0.e7IxYrWBiEGw5q0bmbcWKYWW6EjpApi8QcGcKPC4bIw"
 );
@@ -12,11 +23,11 @@ const apiKey = "AIzaSyBdAC5ms1f3Sp43AyoMQ26izDEEgimW-JM";
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-export const modelEmd = genAI.getGenerativeModel({
+const modelEmd = genAI.getGenerativeModel({
   model: "text-embedding-004",
 });
 
-export const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // generate embeddings
 async function generateEmbeddings() {
@@ -93,4 +104,69 @@ async function askQuestion() {
   console.log(text);
 }
 
-console.log("Connection running.....")
+const getQuery = async (req, res) => {
+  console.log("Received request");
+  const { query } = req.body;
+
+  if (!query) {
+    return res.status(400).send('Please Enter a message');
+  }
+
+  try {
+    const embeddingResponse = await modelEmd.embedContent(query);
+    const embedding = embeddingResponse.embedding.values;
+    const history = await supabaseClient.from("history").select();
+
+    const { data: documents, error } = await supabaseClient.rpc("match_documents12", {
+      query_embedding: embedding,
+      match_threshold: 0.2,
+      match_count: 10,
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    let contextText = "";
+
+    for (let i = 0; i < documents.length; i++) {
+      const document = documents[i];
+      const content = document.content;
+      contextText += `${content.trim()}---\n`;
+    }
+
+    const prompt = stripIndent`${oneLine`
+            You are a representative that is very helpful when it comes to talking about AlumAI database! Only ever answer
+            truthfully and be as helpful as you can!"`}
+            Context sections:
+            ${contextText}
+            Question: """
+            ${query}
+            """
+            Here is chat History: """
+            ${history}
+            """
+            Answer as simple text:
+        `;
+
+    // generate response
+    const result = await model.generateContent(prompt);
+    const response = result.response;
+    const text = await response.text(); // Make sure to await the text method
+    console.log(text);
+
+    // Save to history
+    await supabaseClient.from("history").insert({
+      content: query,
+    });
+
+    res.send(text); // Send the response as text
+  } catch (error) {
+    console.error('Error handling query:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+
+
+app.put("/getResponse", getQuery);
