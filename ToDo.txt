@@ -1,0 +1,5 @@
+Web scraping code 
+Front End improvment (logo, color pallete, etc...)
+Increase the dataset
+Edge function
+Testing (History function, etc...)
