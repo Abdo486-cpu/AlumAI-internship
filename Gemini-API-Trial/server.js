@@ -3,7 +3,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { oneLine, stripIndent } from "common-tags";
 
 // intialize supabase client
-const supabaseClient = createClient(
+export const supabaseClient = createClient(
   "https://qqiwyxoyegggabkrsazd.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaXd5eG95ZWdnZ2Fia3JzYXpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjEzMjgwMzEsImV4cCI6MjAzNjkwNDAzMX0.e7IxYrWBiEGw5q0bmbcWKYWW6EjpApi8QcGcKPC4bIw"
 );
@@ -12,9 +12,11 @@ const apiKey = "AIzaSyBdAC5ms1f3Sp43AyoMQ26izDEEgimW-JM";
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
-const modelEmd = genAI.getGenerativeModel({
+export const modelEmd = genAI.getGenerativeModel({
   model: "text-embedding-004",
 });
+
+export const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // generate embeddings
 async function generateEmbeddings() {
@@ -51,7 +53,6 @@ async function generateEmbeddings() {
 }
 
 async function askQuestion() {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   const query =
     "who is from the state California? and what is their background? and who has most qualifications and what are they?";
   const embeddingResponse = await modelEmd.embedContent(query);
@@ -92,4 +93,4 @@ async function askQuestion() {
   console.log(text);
 }
 
-askQuestion();
+console.log("Connection running.....")
