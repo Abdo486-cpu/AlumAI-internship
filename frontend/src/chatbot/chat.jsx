@@ -1,21 +1,48 @@
 import React, { useState } from 'react';
 import { Box, Button, Flex, Input, VStack, Text } from '@chakra-ui/react';
+import axios from 'axios'; // Fix import typo
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (input.trim() !== '') {
+      // Add user message to chat
       setMessages([...messages, { sender: 'user', text: input }]);
-      // Simulating a response from the chatbot
 
-      setTimeout(() => {
+      try {
+        // Send user input to server using axios
+        const response = await axios.put('http://localhost:3005/getResponse', {
+          query: input,
+        });
+
+        // Extract response text
+        const botResponse = response.data;
+
+        // Check if botResponse is a string and add it to chat
+        if (typeof botResponse === 'string') {
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: 'bot', text: botResponse },
+          ]);
+        } else {
+          // Handle unexpected response format
+          setMessages((prevMessages) => [
+            ...prevMessages,
+            { sender: 'bot', text: 'Unexpected response format from the server.' },
+          ]);
+        }
+      } catch (error) {
+        console.error('Error fetching response:', error);
+        // Handle error by showing an error message
         setMessages((prevMessages) => [
           ...prevMessages,
-          { sender: 'bot', text: 'This is a simulated response from the bot.' },
+          { sender: 'bot', text: 'Error fetching response from the server.' },
         ]);
-      }, 1000);
+      }
+
+      // Clear input field
       setInput('');
     }
   };
