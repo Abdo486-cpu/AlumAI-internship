@@ -1,7 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-// import OpenAI from "openai";
 import { GoogleGenerativeAI } from "@google/generative-ai";
-
 import { oneLine, stripIndent } from "common-tags";
 
 // intialize supabase client
@@ -10,7 +8,7 @@ const supabaseClient = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFxaXd5eG95ZWdnZ2Fia3JzYXpkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MjEzMjgwMzEsImV4cCI6MjAzNjkwNDAzMX0.e7IxYrWBiEGw5q0bmbcWKYWW6EjpApi8QcGcKPC4bIw"
 );
 
-const apiKey = "AIzaSyBdAC5ms1f3Sp43AyoMQ26izDEEgimW-JM"; // Replace with your actual key
+const apiKey = "AIzaSyBdAC5ms1f3Sp43AyoMQ26izDEEgimW-JM";
 
 const genAI = new GoogleGenerativeAI(apiKey);
 
@@ -21,7 +19,6 @@ const modelEmd = genAI.getGenerativeModel({
 // generate embeddings
 async function generateEmbeddings() {
   // custom data
-
   const documents = [
     "Linkedin link: (https://www.linkedin.com/in/mohan-bhyravabhotla-bb44b35), Fullname: (Mohan Bhyravabhotla), State: (California), Employers: (Oracle Corp.; Sun Micro Systems; Fujitsu ICIM; DDE ORG Systems), Experience: (Sr. Director, Oracle Cloud Production Engineering; Systems - Consultant; Territory Services Manager; Customer Support Engineer), job title: ()",
     "Linkedin link: (https://www.linkedin.com/in/veronica-villano-3352037), Fullname: (Veronica Villano), State: (California), Employers: (PP Sothebys Realty), Experience: (Real Estate Agent), job title: (Real Estate Agent at PP Sothebys Realty)",
@@ -41,21 +38,10 @@ async function generateEmbeddings() {
     pendingCount++;
     const input = document.replace(/\n/g, "");
     console.log("pending doc " + pendingCount + "...");
-
-    // turn each string in an embedding
-
-    // const embeddingResponse = await openai.embeddings.create({
-    //     model: "text-embedding-ada-002",
-    //     input
-    // })
-
-    // const [{ embedding }] = embeddingResponse.data.data;
-
     const embeddingResponse = await modelEmd.embedContent(input);
     const embedding = embeddingResponse.embedding.values;
 
     // store the embedding in our DB
-
     await supabaseClient.from("documents").insert({
       content: document,
       embedding,
@@ -66,7 +52,8 @@ async function generateEmbeddings() {
 
 async function askQuestion() {
   const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  const query = "What is Mohan Bhyravabhotla linkedin link?";
+  const query =
+    "who is from the state California? and what is their background? and who has most qualifications and what are they?";
   const embeddingResponse = await modelEmd.embedContent(query);
   const embedding = embeddingResponse.embedding.values;
 
@@ -74,21 +61,21 @@ async function askQuestion() {
     "match_documents12",
     {
       query_embedding: embedding,
-      match_threshold: 0.5, // Choose an appropriate threshold for your data
-      match_count: 1, // Choose the number of matches
+      match_threshold: 0.2,
+      match_count: 10,
     }
   );
-  console.log(documents);
+
   let contextText = "";
+
   for (let i = 0; i < documents.length; i++) {
     const document = documents[i];
     const content = document.content;
-
     contextText += `${content.trim()}---\n`;
   }
 
   const prompt = stripIndent`${oneLine`
-    You are a representative that is very helpful when it comes to talking about AlumAI! Only ever answer
+    You are a representative that is very helpful when it comes to talking about AlumAI database! Only ever answer
     truthfully and be as helpful as you can!"`}
     Context sections:
     ${contextText}
@@ -98,8 +85,7 @@ async function askQuestion() {
     Answer as simple text:
   `;
 
-  // console.log(prompt);
-
+  // generate response
   const result = await model.generateContent(prompt);
   const response = result.response;
   const text = response.text();
