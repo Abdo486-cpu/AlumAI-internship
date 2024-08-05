@@ -109,7 +109,7 @@ const getQuery = async (req, res) => {
   const { query } = req.body;
 
   if (!query) {
-    return res.status(400).send('Please Enter a message');
+    return res.status(400).send("Please Enter a message");
   }
 
   try {
@@ -117,11 +117,14 @@ const getQuery = async (req, res) => {
     const embedding = embeddingResponse.embedding.values;
     const history = await supabaseClient.from("history").select();
 
-    const { data: documents, error } = await supabaseClient.rpc("match_documents12", {
-      query_embedding: embedding,
-      match_threshold: 0.2,
-      match_count: 10,
-    });
+    const { data: documents, error } = await supabaseClient.rpc(
+      "match_documents12",
+      {
+        query_embedding: embedding,
+        match_threshold: 0.2,
+        match_count: 10,
+      }
+    );
 
     if (error) {
       throw new Error(error.message);
@@ -136,18 +139,18 @@ const getQuery = async (req, res) => {
     }
 
     const prompt = stripIndent`${oneLine`
-            You are a representative that is very helpful when it comes to talking about AlumAI database! Only ever answer
-            truthfully and be as helpful as you can!"`}
-            Context sections:
-            ${contextText}
-            Question: """
-            ${query}
-            """
-            Here is chat History: """
-            ${history}
-            """
-            Answer as simple text:
-        `;
+      You are a representative that is very helpful when it comes to talking about AlumAI database! Only ever answer
+      truthfully and be as helpful as you can! and please add the html tags like <br /> <li> <p> <h> <b> and so on to be formatted correctly on the frontend and add more space between objects"`}
+      Context sections:
+      ${contextText}
+      Question: """
+      ${query}
+      """
+      Here is chat History: """
+      ${history}
+      """
+      Answer as simple text:
+  `;
 
     // generate response
     const result = await model.generateContent(prompt);
@@ -162,11 +165,9 @@ const getQuery = async (req, res) => {
 
     res.send(text); // Send the response as text
   } catch (error) {
-    console.error('Error handling query:', error);
-    res.status(500).send('Internal Server Error');
+    console.error("Error handling query:", error);
+    res.status(500).send("Internal Server Error");
   }
 };
-
-
 
 app.put("/getResponse", getQuery);
