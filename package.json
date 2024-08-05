@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "server": "nodemon Gemini-API-Trial/server.js",
+    "client": "npm start --prefix frontend",
+    "dev": "concurrently \"npm run server\" \"npm run client\" "
   },
   "keywords": [],
   "author": "",
@@ -16,9 +19,11 @@
     "cors": "^2.8.5",
     "deno": "^0.1.1",
     "express": "^4.19.2",
+    "nodemon": "^3.1.4",
     "oneline": "^1.0.3"
   },
   "devDependencies": {
+    "concurrently": "^8.2.2",
     "supabase": "^1.187.10"
   }
 }

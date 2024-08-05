@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
-import { Box, Button, Flex, Input, VStack, Text } from '@chakra-ui/react';
+import { Box, Button, Flex, Input, VStack, Text, Divider, Progress, Image, Avatar } from '@chakra-ui/react';
 import axios from 'axios'; // Fix import typo
+import logo from '../AlumAILogo.png';
+import logoAvatar from '../AlumAIAvatar.png';
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
     if (input.trim() !== '') {
       // Add user message to chat
       setMessages([...messages, { sender: 'user', text: input }]);
+      setLoading(true);
 
       try {
         // Send user input to server using axios
@@ -42,13 +46,25 @@ const ChatBot = () => {
         ]);
       }
 
+      setLoading(false);
       // Clear input field
       setInput('');
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSend();
+
+    }
+  };
+
   return (
-    <Flex direction="column" height="100vh" maxWidth="600px" margin="auto" padding="4">
+    <Flex direction="column" height="100vh" maxWidth="80vw" margin="auto" padding="4">
+      <Flex align="center" justify="center" mb="4">
+        <Image src={logo} alt="Logo" objectFit="contain" />
+      </Flex>
+      <Divider mb="4" />
       <VStack
         spacing="4"
         align="stretch"
@@ -57,33 +73,48 @@ const ChatBot = () => {
         borderWidth="1px"
         borderRadius="lg"
         padding="4"
-        bg="gray.50"
+        bg="white"
+        boxShadow="md"
       >
         {messages.map((msg, index) => (
+          <Flex key={index} align="center" direction={msg.sender === 'user' ? 'row-reverse' : 'row'} w="full">
+          {msg.sender === 'bot' && (
+            <Avatar name="Bot" src={logoAvatar} size="sm" mr="2" />
+          )}
           <Box
-            key={index}
-            alignSelf={msg.sender === 'user' ? 'flex-end' : 'flex-start'}
             bg={msg.sender === 'user' ? 'blue.500' : 'gray.200'}
             color={msg.sender === 'user' ? 'white' : 'black'}
             borderRadius="md"
-            padding="2"
+            padding="3"
             maxWidth="80%"
+            boxShadow="sm"
+            wordBreak="break-word"
           >
             <Text>{msg.text}</Text>
           </Box>
+        </Flex>
         ))}
       </VStack>
       <Flex mt="4">
-        <Input
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Type your message..."
-          flexGrow="1"
-          mr="2"
-        />
-        <Button onClick={handleSend} colorScheme="blue">
+      {loading ? (
+          <Progress size="xs" isIndeterminate width="100%" />
+        ) : (
+          <>
+            <Input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Type your message..."
+              flexGrow="1"
+              mr="2"
+              borderColor="teal.500"
+              _placeholder={{ color: 'grey' }}
+            />
+        <Button onClick={handleSend} colorScheme="blue" variant="solid" isDisabled={input===null}>
           Send
         </Button>
+        </>
+      )}
       </Flex>
     </Flex>
   );
