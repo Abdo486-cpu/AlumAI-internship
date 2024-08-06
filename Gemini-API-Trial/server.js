@@ -1,17 +1,18 @@
 const { createClient } = require("@supabase/supabase-js");
+const fs = require('fs');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { oneLine, stripIndent } = require("common-tags");
 // var bodyParser = require("body-parser");
 const express = require("express");
 const cors = require("cors");
 
-const app = express();
-const port = 3005;
-app.listen(port, () => {
-  console.log(`Listening to requests on http://localhost:${port}`);
-});
-app.use(express.json());
-app.use(cors());
+// const app = express();
+// const port = 3005;
+// app.listen(port, () => {
+//   console.log(`Listening to requests on http://localhost:${port}`);
+// });
+// app.use(express.json());
+// app.use(cors());
 
 // intialize supabase client
 const supabaseClient = createClient(
@@ -27,7 +28,90 @@ const modelEmd = genAI.getGenerativeModel({
   model: "text-embedding-004",
 });
 
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+// Function to generate embeddings
+async function generateEmbeddings() {
+  const fileStream = fs.createReadStream('output.txt', { encoding: 'utf-8' });
+
+  let pendingCount = 0;
+  let currentRecord = '';
+
+  // Read the file line by line
+  const readline = require('readline');
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
+  });
+
+  for await (const line of rl) {
+    currentRecord += line.trim();
+
+    // Check if currentRecord ends with a complete entry
+    if (currentRecord.endsWith('",')) {
+      pendingCount++;
+      const input = currentRecord.slice(1, -2); // Remove starting " and ending ",
+      console.log("pending doc " + pendingCount + "...");
+
+      try {
+        const embeddingResponse = await modelEmd.embedContent(input); // Replace with your embedding generation function
+        const embedding = embeddingResponse.embedding.values;
+
+        // Store the embedding in your Supabase database
+        const { error } = await supabaseClient
+          .from("documents")
+          .insert({
+            content: input,
+            embedding,
+          });
+
+        if (error) {
+          console.error('Error inserting embedding:', error);
+        } else {
+          console.log("completed doc " + pendingCount);
+        }
+      } catch (err) {
+        console.error('Error generating embedding:', err);
+      }
+
+      // Reset currentRecord for the next entry
+      currentRecord = '';
+    }
+  }
+
+  // Check if there's any remaining record not yet processed
+  if (currentRecord) {
+    pendingCount++;
+    const input = currentRecord.slice(1, -1); // Remove starting " and ending ",
+    console.log("pending doc " + pendingCount + "...");
+
+    try {
+      const embeddingResponse = await modelEmd.embedContent(input); // Replace with your embedding generation function
+      const embedding = embeddingResponse.embedding.values;
+
+      // Store the embedding in your Supabase database
+      const { error } = await supabaseClient
+        .from("documents")
+        .insert({
+          content: input,
+          embedding,
+        });
+
+      if (error) {
+        console.error('Error inserting embedding:', error);
+      } else {
+        console.log("completed doc " + pendingCount);
+      }
+    } catch (err) {
+      console.error('Error generating embedding:', err);
+    }
+  }
+
+  console.log('Data processing complete.');
+}
+
+// Run the function
+generateEmbeddings().catch(console.error);
 
 // generate embeddings
 async function generateEmbeddings() {
@@ -62,6 +146,7 @@ async function generateEmbeddings() {
     console.log("comlepted doc " + pendingCount);
   }
 }
+
 
 async function askQuestion() {
   const query =
@@ -170,4 +255,4 @@ const getQuery = async (req, res) => {
   }
 };
 
-app.put("/getResponse", getQuery);
+// app.put("/getResponse", getQuery);
