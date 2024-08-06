@@ -1,5 +1,15 @@
-Web scraping code 
-Front End improvment (logo, color pallete, etc...)
-Increase the dataset
-Edge function
-Testing (History function, etc...)
+To Be Done Before 9/8:-
+1)Organize the response
+2)Generation Dataset
+3)Login page with authraization 
+    *History chat
+    *.csv file
+4)Front End improvment (logo, color pallete, etc...)
+
+
+### Testing (History function, etc...)
+
+We will see:-
+Web scraping code *** 
+Edge function***
+
