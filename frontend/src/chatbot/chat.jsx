@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -18,6 +18,39 @@ const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState("");
+
+  useEffect(() => {
+    let storedToken = localStorage.getItem("chatbot-secret");
+    if (!storedToken) {
+      axios.post("http://localhost:3006/token")
+        .then((response) => {
+          storedToken = response.data.token;
+          localStorage.setItem("chatbot-secret", storedToken);
+          setToken(storedToken);
+        })
+        .catch((error) => console.error("Error generating token:", error));
+    } else {
+      setToken(storedToken);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Fetch chat history when the token is available
+    if (token) {
+      axios.get("http://localhost:3006/chat-history", {
+        headers: { 'Authorization': token }
+      })
+        .then((response) => {
+          const history = response.data.history.map((entry) => ({
+            sender: "user", // Adjust sender as per your saved data structure
+            text: entry.content
+          }));
+          setMessages(history);
+        })
+        .catch((error) => console.error("Error fetching chat history:", error));
+    }
+  }, [token]);
 
   const handleSend = async () => {
     if (input.trim() !== "") {
@@ -26,9 +59,10 @@ const ChatBot = () => {
       setLoading(true);
 
       try {
-        // Send user input to server using axios
-        const response = await axios.put("http://localhost:3005/getResponse", {
+        const response = await axios.post("http://localhost:3006/getQuery", {
           query: input,
+        }, {
+          headers: { 'Authorization': token }
         });
 
         // Extract response text

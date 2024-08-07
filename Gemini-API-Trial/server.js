@@ -2,17 +2,23 @@ const { createClient } = require("@supabase/supabase-js");
 const fs = require('fs');
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { oneLine, stripIndent } = require("common-tags");
-// var bodyParser = require("body-parser");
 const express = require("express");
 const cors = require("cors");
+const jwt = require('jsonwebtoken');
+const bodyParser = require('body-parser');
 
-// const app = express();
-// const port = 3005;
-// app.listen(port, () => {
-//   console.log(`Listening to requests on http://localhost:${port}`);
-// });
-// app.use(express.json());
-// app.use(cors());
+
+const app = express();
+const port = 3006;
+const secret = 'chatbot-secret';
+
+app.listen(port, () => {
+  console.log(`Listening to requests on http://localhost:${port}`);
+});
+
+app.use(express.json());
+app.use(cors());
+app.use(bodyParser.json());
 
 // intialize supabase client
 const supabaseClient = createClient(
@@ -28,125 +34,63 @@ const modelEmd = genAI.getGenerativeModel({
   model: "text-embedding-004",
 });
 
-// const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
-// Function to generate embeddings
-async function generateEmbeddings() {
-  const fileStream = fs.createReadStream('output.txt', { encoding: 'utf-8' });
+const generateToken = () => {
+  const payload = {};
+  const options = { expiresIn: '7d' }; // Token valid for 7 days
+  return jwt.sign(payload, secret, options);
+};
 
-  let pendingCount = 0;
-  let currentRecord = '';
+const authenticateToken = (req, res, next) => {
+  const token = req.headers['authorization'];
+  if (!token) return res.sendStatus(401);
 
-  // Read the file line by line
-  const readline = require('readline');
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity
+  jwt.verify(token, secret, (err, user) => {
+    if (err) return res.sendStatus(403);
+    req.user = user;
+    next();
   });
+};
 
-  for await (const line of rl) {
-    currentRecord += line.trim();
+// Generate a new token
+app.post('/token', (req, res) => {
+  const token = generateToken();
+  res.json({ token });
+});
 
-    // Check if currentRecord ends with a complete entry
-    if (currentRecord.endsWith('",')) {
-      pendingCount++;
-      const input = currentRecord.slice(1, -2); // Remove starting " and ending ",
-      console.log("pending doc " + pendingCount + "...");
+// Get chat history for authenticated user
+app.get('/chat-history', authenticateToken, async (req, res) => {
+  const token = req.headers['authorization'];
+  const { data, error } = await supabaseClient
+    .from('history')
+    .select('*')
+    .eq('token', token);
 
-      try {
-        const embeddingResponse = await modelEmd.embedContent(input); // Replace with your embedding generation function
-        const embedding = embeddingResponse.embedding.values;
-
-        // Store the embedding in your Supabase database
-        const { error } = await supabaseClient
-          .from("documents")
-          .insert({
-            content: input,
-            embedding,
-          });
-
-        if (error) {
-          console.error('Error inserting embedding:', error);
-        } else {
-          console.log("completed doc " + pendingCount);
-        }
-      } catch (err) {
-        console.error('Error generating embedding:', err);
-      }
-
-      // Reset currentRecord for the next entry
-      currentRecord = '';
-    }
+  if (error) {
+    console.error("Error fetching chat history:", error);
+    return res.status(500).send("Internal Server Error");
   }
 
-  // Check if there's any remaining record not yet processed
-  if (currentRecord) {
-    pendingCount++;
-    const input = currentRecord.slice(1, -1); // Remove starting " and ending ",
-    console.log("pending doc " + pendingCount + "...");
+  res.json({ history: data });
+});
 
-    try {
-      const embeddingResponse = await modelEmd.embedContent(input); // Replace with your embedding generation function
-      const embedding = embeddingResponse.embedding.values;
+// // Save chat message for authenticated user
+// app.post('/save-chat', authenticateToken, async (req, res) => {
+//   const token = req.headers['authorization'];
+//   const { message } = req.body;
 
-      // Store the embedding in your Supabase database
-      const { error } = await supabaseClient
-        .from("documents")
-        .insert({
-          content: input,
-          embedding,
-        });
+//   const { data, error } = await supabaseClient
+//     .from('history')
+//     .insert({ token, content: message });
 
-      if (error) {
-        console.error('Error inserting embedding:', error);
-      } else {
-        console.log("completed doc " + pendingCount);
-      }
-    } catch (err) {
-      console.error('Error generating embedding:', err);
-    }
-  }
+//   if (error) {
+//     console.error("Error saving chat message:", error);
+//     return res.status(500).send("Internal Server Error");
+//   }
 
-  console.log('Data processing complete.');
-}
-
-// Run the function
-generateEmbeddings().catch(console.error);
-
-// generate embeddings
-async function generateEmbeddings() {
-  // custom data
-  const documents = [
-    "Linkedin link: (https://www.linkedin.com/in/mohan-bhyravabhotla-bb44b35), Fullname: (Mohan Bhyravabhotla), State: (California), Employers: (Oracle Corp.; Sun Micro Systems; Fujitsu ICIM; DDE ORG Systems), Experience: (Sr. Director, Oracle Cloud Production Engineering; Systems - Consultant; Territory Services Manager; Customer Support Engineer), job title: ()",
-    "Linkedin link: (https://www.linkedin.com/in/veronica-villano-3352037), Fullname: (Veronica Villano), State: (California), Employers: (PP Sothebys Realty), Experience: (Real Estate Agent), job title: (Real Estate Agent at PP Sothebys Realty)",
-    "Linkedin link: (https://www.linkedin.com/in/anh-ko-4a894b16), Fullname: (Anh Ko), State: (California), Employers: (Kaiser Permanente; Kaiser Permanente; Kaiser Permanente; Kaiser Permanente; Wells Fargo Bank; Wells Fargo Financial), Experience: (Senior Manager, Delivery System Strategy; Interim, Executive Consultant to NCAL COO of Hospital and Health Plan at Kaiser; Business Consultant Specialist; Consultant/Sr Finance Analyst/Senior Consultant; Business Specialist; Store Manager), job title: ()",
-    "Linkedin link: (https://www.linkedin.com/in/hollymcclain), Fullname: (Holly McClain, M.Ed), State: (), Employers: (Holly McClain Coaching; The NADP-The National Association of Divorce Professionals; Center Joint Unified School District; Santa Clara Unified School District; Job Rooster; Fremont Unified School District), Experience: (Certified Life Coach ; Senior Education Coordinator; School Counselor; Guidance Counselor; Employment Specialist; Educator), job title: (Counselor and Certified Life Coach | Supporting teens and young adults)",
-    "Linkedin link: (https://www.linkedin.com/in/haydenmckeeperry), Fullname: (Hayden Perry), State: (California), Employers: (The Stylish Sabbatical; MIXT; f'real foods; f'real foods; PayPal; Peet's Coffee; Peet's Coffee; Independent Marketing Consultant; Tucker Alan Inc.; Williams Sonoma, Inc.; Aidells Sausage Company; Safeway Inc.; Ford Motor Company), Experience: (Founder; Vice President of Marketing; Senior Director of Marketing; Director of Marketing; Head of Consumer Growth Marketing for Xoom, a PayPal Service; Director of Marketing; Senior Marketing Manager; Consultant; Consultant and Senior Consultant; Marketing Manager; Associate Brand Manager; Analyst; Marketing Leadership Intern), job title: (marketing executive turned entrepreneur)",
-    "Linkedin link: (https://www.linkedin.com/in/aaron-m-gabriel-cfp®-cima®-8742796), Fullname: (Aaron M. Gabriel, CFP®, CIMA®), State: (California), Employers: (The Gabriel Group; The Gabriel Group; A.G. Edwards; KEMPER Securities; Franklin/Templeton Group), Experience: (President; Branch Manager / Senior V.P., Investments; V.P.-INVESTMENTS, CFP, CIMA; V.P.-Investments; Management Training Program), job title: (President at The Gabriel Group. Branch Manager, Raymond James)",
-    "Linkedin link: (https://www.linkedin.com/in/missy-norquist-5858241), Fullname: (Missy Norquist), State: (California), Employers: (Apple Inc.; Apple Inc.; National Semiconductor; National Semiconductor; National Semiconductor), Experience: (People Privacy Leader; Recruiting Operations/Recruiting Compliance Manager; Global Staffing Operations Manager; Staffing Program Manager; University Recruiter), job title: (People Privacy)",
-    "Linkedin link: (https://www.linkedin.com/in/denis-mcgue), Fullname: (Denis McGue), State: (), Employers: (RETIRED!; McWhorters Stationers; Drug Plastics and Glass Co., Inc.; PMZ Real Estate), Experience: (RETIRED!; Assistant Manager; Account Manager; Commercial Real Estate Agent), job title: (Working at what God puts in front of me.)",
-    "Linkedin link: (https://www.linkedin.com/in/christina-nguyen-jones-10ab5242), Fullname: (Christina Nguyen-Jones), State: (), Employers: (Self-employed; Alexander Doll Company, Inc.; Avalon Apparel; Active Apparel Group; RTA; MATE the Label; Topson Downs of California, Inc.; AG Jeans; APOLLO  APPAREL; Rachel Roy; Nordstrom), Experience: (Independent Contractor: Fashion Broker, Production, Tech Design, Product Development; Design Associate / Patternmaker; Technical Designer; Senior Technical Designer; Production Technical Designer; Development & Production Manager; Technical Designer; Contemporary Technical Designer; Denim Designer; Design Assistant; Salesperson/ Customer Care), job title: (Production, Tech Design, Product Development Professional)",
-    "Linkedin link: (https://www.linkedin.com/in/bill-gegg-a6474623), Fullname: (Bill Gegg), State: (California), Employers: (None; City of Antioch), Experience: (Retired but volunteering; Director of Information Systems), job title: (Retired but volunteering at Monument Crises Center)",
-  ];
-
-  let pendingCount = 0;
-
-  for (const document of documents) {
-    pendingCount++;
-    const input = document.replace(/\n/g, "");
-    console.log("pending doc " + pendingCount + "...");
-    const embeddingResponse = await modelEmd.embedContent(input);
-    const embedding = embeddingResponse.embedding.values;
-
-    // store the embedding in our DB
-    await supabaseClient.from("documents").insert({
-      content: document,
-      embedding,
-    });
-    console.log("comlepted doc " + pendingCount);
-  }
-}
-
+//   res.sendStatus(200);
+// });
 
 async function askQuestion() {
   const query =
@@ -192,15 +136,25 @@ async function askQuestion() {
 const getQuery = async (req, res) => {
   console.log("Received request");
   const { query } = req.body;
+  const token = req.headers['authorization'];
 
   if (!query) {
     return res.status(400).send("Please Enter a message");
   }
 
   try {
+    // Fetch the chat history with the token
+    const { data: historyData, error: historyError } = await supabaseClient
+      .from('history')
+      .select('content')
+      .eq('token', 'abdo');
+
+    if (historyError) throw historyError;
+
+    const history = historyData[0].content;
+
     const embeddingResponse = await modelEmd.embedContent(query);
     const embedding = embeddingResponse.embedding.values;
-    const history = await supabaseClient.from("history").select();
 
     const { data: documents, error } = await supabaseClient.rpc(
       "match_documents12",
@@ -235,19 +189,20 @@ const getQuery = async (req, res) => {
       ${history}
       """
       Answer as simple text:
-  `;
+    `;
 
     // generate response
     const result = await model.generateContent(prompt);
     const response = result.response;
-    const text = await response.text(); // Make sure to await the text method
-    console.log(text);
+    const text = await response.text();
 
-    // Save to history
-    await supabaseClient.from("history").insert({
-      content: query,
-    });
-
+      
+    history.push(query)
+    console.log(history)
+    // Save to history with the token
+    const resp = await supabaseClient.from("history").update({
+      content: history
+    }).eq('token','abdo');
     res.send(text); // Send the response as text
   } catch (error) {
     console.error("Error handling query:", error);
@@ -255,4 +210,4 @@ const getQuery = async (req, res) => {
   }
 };
 
-// app.put("/getResponse", getQuery);
+app.post("/getQuery", authenticateToken, getQuery);
