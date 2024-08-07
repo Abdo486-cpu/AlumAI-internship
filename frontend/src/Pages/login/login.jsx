@@ -9,7 +9,7 @@ import {
   Center,
   Image,
 } from "@chakra-ui/react";
-import logo from "../../Images/AlumAILogo.png"; // Adjust path to your logo image
+import logo from "../../Images/AlumAILogo.png";
 import axios from "axios";
 
 const Login = () => {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -10,7 +10,7 @@ import {
   Image,
   Avatar,
 } from "@chakra-ui/react";
-import axios from "axios"; // Fix import typo
+import axios from "axios";
 import logo from "../../Images/AlumAILogo.png";
 import logoAvatar from "../../Images/AlumAIAvatar.png";
 
@@ -20,6 +20,23 @@ const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchChat = async () => {
+      try {
+        const response = await axios.get("http://localhost:3006/getChat", {
+          params: { username: username },
+        });
+        if(response.data){
+          setMessages(response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching chat:", error);
+      }
+    };
+    fetchChat()
+  }, [username]);
+
 
   const handleSend = async () => {
     if (input.trim() !== "") {

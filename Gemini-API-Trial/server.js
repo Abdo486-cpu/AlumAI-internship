@@ -174,6 +174,42 @@ const login = async (req, res) => {
   }
 };
 
+const getChat = async (req, res) => {
+  const { username } = req.query;
+  
+  // Fetch both content and bot messages
+  const { data, error } = await supabaseClient
+    .from("users")
+    .select("content, bot")
+    .eq("username", username);
+  
+  if (error) {
+    res.status(500).send("Internal Server Error");
+  } else if (data.length === 0) {
+    res.status(404).send("No chat history found");
+  } else {
+    // Assuming content and bot columns contain arrays of messages
+    const userMessages = data[0].content || [];
+    const botMessages = data[0].bot || [];
+
+    // Combine user and bot messages into a single array
+    const combinedMessages = [];
+    
+    for (let i = 0; i < Math.max(userMessages.length, botMessages.length); i++) {
+      if (i < userMessages.length) {
+        combinedMessages.push({ sender: "user", text: userMessages[i] });
+      }
+      if (i < botMessages.length) {
+        combinedMessages.push({ sender: "bot", text: botMessages[i] });
+      }
+    }
+
+    res.send(combinedMessages);
+  }
+};
+
+
 app.get("/login", login);
 app.get("/test", test);
 app.post("/getQuery", getQuery);
+app.get("/getChat", getChat);
