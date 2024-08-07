@@ -14,6 +14,8 @@ import axios from "axios"; // Fix import typo
 import logo from "../../Images/AlumAILogo.png";
 import logoAvatar from "../../Images/AlumAIAvatar.png";
 
+const username = localStorage.getItem("username");
+
 const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -28,6 +30,7 @@ const ChatBot = () => {
       try {
         const response = await axios.post("http://localhost:3006/getQuery", {
           query: input,
+          username: username,
         });
 
         // Extract response text

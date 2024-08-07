@@ -73,7 +73,7 @@ async function askQuestion() {
 
 const getQuery = async (req, res) => {
   console.log("Received request");
-  const { query } = req.body;
+  const { query, username } = req.body;
 
   if (!query) {
     return res.status(400).send("Please Enter a message");
@@ -83,10 +83,10 @@ const getQuery = async (req, res) => {
     const { data: historyData, error: historyError } = await supabaseClient
       .from("users")
       .select("content")
-      .eq("username", "abdo");
+      .eq("username", username);
 
     const { data: bothistoryData, error: bothistoryError } =
-      await supabaseClient.from("users").select("bot").eq("username", "abdo");
+      await supabaseClient.from("users").select("bot").eq("username", username);
 
     if (historyError) throw historyError;
 
@@ -145,7 +145,7 @@ const getQuery = async (req, res) => {
         content: history,
         bot: bothistory,
       })
-      .eq("username", "abdo");
+      .eq("username", username);
     res.send(text); // Send the response as text
   } catch (error) {
     console.error("Error handling query:", error);
@@ -160,5 +160,20 @@ const test = async (req, res) => {
     .eq("username", "abdo");
   res.send(resp);
 };
+
+const login = async (req, res) => {
+  const { username, password } = req.query;
+  const pass = await supabaseClient
+    .from("users")
+    .select("password")
+    .eq("username", username);
+  if (pass.data[0].password == parseInt(password)) {
+    res.status(200).send("Logged in!");
+  } else {
+    res.status(401).send("Invalid username or password");
+  }
+};
+
+app.get("/login", login);
 app.get("/test", test);
 app.post("/getQuery", getQuery);

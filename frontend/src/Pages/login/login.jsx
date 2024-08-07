@@ -1,23 +1,23 @@
-import React, { useState } from 'react';
-import { 
-  Box, 
-  Button, 
-  Input, 
-  Stack, 
-  Heading, 
-  useToast, 
-  Container, 
-  Center, 
-  Image 
-} from '@chakra-ui/react';
-import logo from '../../Images/AlumAILogo.png'; // Adjust path to your logo image
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Input,
+  Stack,
+  Heading,
+  useToast,
+  Center,
+  Image,
+} from "@chakra-ui/react";
+import logo from "../../Images/AlumAILogo.png"; // Adjust path to your logo image
+import axios from "axios";
 
 const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const toast = useToast();
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     // Basic validation
     if (!username || !password) {
       toast({
@@ -29,20 +29,33 @@ const Login = () => {
       });
       return;
     }
-    
-    // Handle login logic (e.g., API call)
-    // Example success toast
-    toast({
-      title: "Logged in.",
-      description: "You have successfully logged in.",
-      status: "success",
-      duration: 9000,
-      isClosable: true,
+    const response = await axios.get("http://localhost:3006/login", {
+      params: { username: username, password: password },
     });
 
+    if (response.status === 200) {
+      toast({
+        title: "Logged in.",
+        description: "You have successfully logged in.",
+        status: "success",
+        duration: 9000,
+        isClosable: true,
+      });
+      localStorage.setItem("username", username);
+      window.location.href = "/chatbot";
+    } else {
+      toast({
+        title: "Error.",
+        description: "Please fill in all fields.",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+
     // Clear fields (optional)
-    setUsername('');
-    setPassword('');
+    setUsername("");
+    setPassword("");
   };
 
   return (
@@ -61,11 +74,11 @@ const Login = () => {
         <Center mb={6}>
           <Image src={logo} alt="Logo" boxSize="100px" />
         </Center>
-        
+
         <Heading as="h2" size="lg" mb={6} textAlign="center">
           Login
         </Heading>
-        
+
         <Stack spacing={4}>
           <Input
             placeholder="Username"
@@ -78,10 +91,7 @@ const Login = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button
-            colorScheme="teal"
-            onClick={handleLogin}
-          >
+          <Button colorScheme="teal" onClick={handleLogin}>
             Login
           </Button>
         </Stack>
