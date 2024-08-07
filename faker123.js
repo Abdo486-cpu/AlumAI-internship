@@ -1,8 +1,9 @@
-const faker = require('faker');
+const faker = require("faker");
 
 function generateSyntheticData() {
   let syntheticData = [];
-  for (let i = 0; i < 10; i++) {  // Generate 10 synthetic records
+  for (let i = 0; i < 10; i++) {
+    // Generate 10 synthetic records
     let profile = {
       firstName: faker.name.firstName(),
       lastName: faker.name.lastName(),
@@ -10,14 +11,14 @@ function generateSyntheticData() {
         faker.name.jobTitle(),
         faker.name.jobTitle(),
         faker.name.jobTitle(),
-        faker.name.jobTitle()
-      ].join('; '),
+        faker.name.jobTitle(),
+      ].join("; "),
       companies: [
         faker.company.companyName(),
         faker.company.companyName(),
         faker.company.companyName(),
-        faker.company.companyName()
-      ].join('; '),
+        faker.company.companyName(),
+      ].join("; "),
       currentPosition: faker.name.jobTitle(),
       currentCompany: faker.company.companyName(),
       degree: faker.name.jobTitle(),

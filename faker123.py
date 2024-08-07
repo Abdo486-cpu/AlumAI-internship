@@ -40,12 +40,12 @@ def generate_graduation_years():
         years.append(f"({random.randint(1970, 2023)})")
     return ", ".join(years)
 
-with open('alumnidata2.csv', 'w', newline='') as csvfile:
+with open('alumnidata3.csv', 'w', newline='') as csvfile:
     fieldnames = ['profileURL','firstName', 'lastName', 'dob', 'email','location', 'companies', "positions", "currentRole", "degree", "graduationYears", "fullName"]
     writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
 
     writer.writeheader()
-    for _ in range(20):
+    for _ in range(20000):
         first_name = fake.first_name()
         last_name = fake.last_name()
         middle_initial = random.choice([f" {fake.random_uppercase_letter()}.", ""])
