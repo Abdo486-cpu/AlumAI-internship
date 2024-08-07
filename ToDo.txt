@@ -1,6 +1,6 @@
 To Be Done Before 9/8:-
 1)Organize the response
-2)Generation Dataset
+2)Generate Dataset
 3)Login page with authraization 
     *History chat
     *.csv file
