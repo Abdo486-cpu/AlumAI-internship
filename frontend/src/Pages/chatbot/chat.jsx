@@ -11,8 +11,8 @@ import {
   Avatar,
 } from "@chakra-ui/react";
 import axios from "axios"; // Fix import typo
-import logo from "../AlumAILogo.png";
-import logoAvatar from "../AlumAIAvatar.png";
+import logo from "../../Images/AlumAILogo.png";
+import logoAvatar from "../../Images/AlumAIAvatar.png";
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([]);
