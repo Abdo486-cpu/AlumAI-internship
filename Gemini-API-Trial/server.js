@@ -3,7 +3,9 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { oneLine, stripIndent } = require("common-tags");
 const express = require("express");
 const cors = require("cors");
-
+const csv = require("fast-csv");
+const fs = require("fs");
+const path = require("path");
 const app = express();
 const port = 3006;
 
@@ -100,8 +102,8 @@ const getQuery = async (req, res) => {
       "match_documents12",
       {
         query_embedding: embedding,
-        match_threshold: 0.2,
-        match_count: 10,
+        match_threshold: 0.5,
+        match_count: 100,
       }
     );
 
@@ -109,15 +111,18 @@ const getQuery = async (req, res) => {
       throw new Error(error.message);
     }
 
-    let contextText = "";
+    let contextText = [];
+    let morethan = false;
+    if (documents.length > 5) {
+      morethan = true;
+    }
 
     for (let i = 0; i < documents.length; i++) {
       const document = documents[i];
-      const content = document.content;
-      contextText += `${content.trim()}---\n`;
+      contextText.push(document.content);
     }
 
-    const prompt = stripIndent`${oneLine`
+    let prompt = stripIndent`${oneLine`
       You are a representative that is very helpful when it comes to talking about AlumAI database! Only ever answer
       truthfully and be as helpful as you can! and please add the html tags like <br /> <li> <p> <h> <b> and so on to be formatted correctly on the frontend and add more space between objects"`}
       Context sections:
@@ -128,8 +133,12 @@ const getQuery = async (req, res) => {
       Here is chat History: """
       ${history}
       """
-      Answer as simple text:
+      Answer as simple text (only show a max of 5 results):
     `;
+
+    if (morethan) {
+      prompt += `add the message (to check more individuals download csv file) to be shown at the end of the message`;
+    }
 
     // generate response
     const result = await model.generateContent(prompt);
@@ -154,11 +163,39 @@ const getQuery = async (req, res) => {
 };
 
 const test = async (req, res) => {
-  const resp = await supabaseClient
-    .from("users")
-    .select("content")
-    .eq("username", "abdo");
-  res.send(resp);
+  const d = ["1", "2", "3", "4"];
+  const csvStream = csv.format({ headers: true });
+
+  if (!fs.existsSync("frontend/public/files/export/")) {
+    if (!fs.existsSync("frontend/public/files")) {
+      fs.mkdirSync("frontend/public/files/");
+    }
+    if (!fs.existsSync("frontend/public/files/export/")) {
+      fs.mkdirSync("./frontend/public/files/export/");
+    }
+  }
+
+  const writableStream = fs.createWriteStream(
+    "frontend/public/files/export/users.csv"
+  );
+
+  csvStream.pipe(writableStream);
+
+  writableStream.on("finish", function () {
+    res.json({
+      downloadUrl: `/files/export/users.csv`,
+    });
+  });
+
+  if (d.length > 0) {
+    d.map((user) => {
+      csvStream.write({
+        username: user,
+      });
+    });
+  }
+  csvStream.end();
+  writableStream.end();
 };
 
 const login = async (req, res) => {
@@ -176,13 +213,13 @@ const login = async (req, res) => {
 
 const getChat = async (req, res) => {
   const { username } = req.query;
-  
+
   // Fetch both content and bot messages
   const { data, error } = await supabaseClient
     .from("users")
     .select("content, bot")
     .eq("username", username);
-  
+
   if (error) {
     res.status(500).send("Internal Server Error");
   } else if (data.length === 0) {
@@ -194,8 +231,12 @@ const getChat = async (req, res) => {
 
     // Combine user and bot messages into a single array
     const combinedMessages = [];
-    
-    for (let i = 0; i < Math.max(userMessages.length, botMessages.length); i++) {
+
+    for (
+      let i = 0;
+      i < Math.max(userMessages.length, botMessages.length);
+      i++
+    ) {
       if (i < userMessages.length) {
         combinedMessages.push({ sender: "user", text: userMessages[i] });
       }
@@ -208,7 +249,7 @@ const getChat = async (req, res) => {
   }
 };
 
-
+app.use("/files", express.static(path.join(__dirname, "public/files")));
 app.get("/login", login);
 app.get("/test", test);
 app.post("/getQuery", getQuery);

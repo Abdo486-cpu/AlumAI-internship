@@ -13,13 +13,38 @@ import {
 import axios from "axios";
 import logo from "../../Images/AlumAILogo.png";
 import logoAvatar from "../../Images/AlumAIAvatar.png";
+import { DownloadLink } from "./testfile";
 
 const username = localStorage.getItem("username");
+let downloadUrl = "";
+axios
+  .get("http://localhost:3006/test")
+  .then(({ data }) => {
+    downloadUrl = data.downloadUrl;
+  })
+  .catch((error) => {
+    console.log(error);
+    alert("Error Happened");
+  });
+console.log(downloadUrl);
 
 const ChatBot = () => {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // const fetchDataToDownload = () => {
+  //   axios
+  //     .get("http://localhost:3006/test")
+  //     .then(({ data }) => {
+  //       downloadUrl = data.downloadUrl;
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //       alert("Error Happened");
+  //     });
+  //   console.log(downloadUrl);
+  // };
 
   useEffect(() => {
     const fetchChat = async () => {
@@ -27,16 +52,15 @@ const ChatBot = () => {
         const response = await axios.get("http://localhost:3006/getChat", {
           params: { username: username },
         });
-        if(response.data){
+        if (response.data) {
           setMessages(response.data);
         }
       } catch (error) {
         console.error("Error fetching chat:", error);
       }
     };
-    fetchChat()
+    fetchChat();
   }, [username]);
-
 
   const handleSend = async () => {
     if (input.trim() !== "") {
@@ -136,6 +160,8 @@ const ChatBot = () => {
             </Box>
           </Flex>
         ))}
+
+        <DownloadLink url={downloadUrl} fileName="users24.csv" />
       </VStack>
       <Flex mt="4">
         {loading ? (
