@@ -1,7 +1,7 @@
 To Be Done Before 12/8:-
 1)Gemini Prompt & threshold
 2).csv
-3)Front End
+3)Front End(Home, login, main)
 4)Test
 
 To Be Done Before 9/8:-
