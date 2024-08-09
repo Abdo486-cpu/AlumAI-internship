@@ -1,3 +1,9 @@
+To Be Done Before 12/8:-
+1)Gemini Prompt & threshold
+2).csv
+3)Front End
+
+
 To Be Done Before 9/8:-
 1)Organize the response
 2)Generate Dataset
