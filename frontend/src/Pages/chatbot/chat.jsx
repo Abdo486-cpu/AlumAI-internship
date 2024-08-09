@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Box,
   Button,
@@ -33,6 +33,7 @@ const ChatBot = () => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const messagesEndRef = useRef(null);
   // const fetchDataToDownload = () => {
   //   axios
   //     .get("http://localhost:3006/test")
@@ -61,6 +62,11 @@ const ChatBot = () => {
     };
     fetchChat();
   }, []);
+
+  useEffect(() => {
+    // Scroll to the bottom whenever messages change
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSend = async () => {
     if (input.trim() !== "") {
@@ -161,7 +167,7 @@ const ChatBot = () => {
             </Box>
           </Flex>
         ))}
-
+        <div ref={messagesEndRef} />
         <DownloadLink url={downloadUrl} fileName="users.csv" />
       </VStack>
       <Flex mt="4">
