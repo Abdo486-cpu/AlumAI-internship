@@ -16,7 +16,6 @@ import logoAvatar from "../../Images/AlumAIAvatar.png";
 import { DownloadLink } from "./testfile";
 
 const username = localStorage.getItem("username");
-let downloadUrl = "";
 // axios
 //   .get("http://localhost:3006/test")
 //   .then(({ data }) => {
@@ -29,7 +28,7 @@ let downloadUrl = "";
 // console.log(downloadUrl);
 
 const ChatBot = () => {
-  const [downloadUrl, setdownloadUrl] = useState("");
+  const [downloadUrl, setdownloadUrl] = useState("/files/export/users.csv");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
