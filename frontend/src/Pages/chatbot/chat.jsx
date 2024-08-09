@@ -16,19 +16,20 @@ import logoAvatar from "../../Images/AlumAIAvatar.png";
 import { DownloadLink } from "./testfile";
 
 const username = localStorage.getItem("username");
-let downloadUrl = "";
-axios
-  .get("http://localhost:3006/test")
-  .then(({ data }) => {
-    downloadUrl = data.downloadUrl;
-  })
-  .catch((error) => {
-    console.log(error);
-    alert("Error Happened");
-  });
-console.log(downloadUrl);
+// let downloadUrl = "";
+// axios
+//   .get("http://localhost:3006/test")
+//   .then(({ data }) => {
+//     downloadUrl = data.downloadUrl;
+//   })
+//   .catch((error) => {
+//     console.log(error);
+//     alert("Error Happened");
+//   });
+// console.log(downloadUrl);
 
 const ChatBot = () => {
+  const [downloadUrl, setdownloadUrl] = useState("");
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -60,7 +61,7 @@ const ChatBot = () => {
       }
     };
     fetchChat();
-  }, [username]);
+  }, []);
 
   const handleSend = async () => {
     if (input.trim() !== "") {
@@ -75,7 +76,8 @@ const ChatBot = () => {
         });
 
         // Extract response text
-        const botResponse = response.data;
+        const botResponse = response.data.content;
+        setdownloadUrl(response.data.downloadUrl);
 
         // Check if botResponse is a string and add it to chat
         if (typeof botResponse === "string") {
@@ -161,7 +163,7 @@ const ChatBot = () => {
           </Flex>
         ))}
 
-        <DownloadLink url={downloadUrl} fileName="users24.csv" />
+        <DownloadLink url={downloadUrl} fileName="users.csv" />
       </VStack>
       <Flex mt="4">
         {loading ? (

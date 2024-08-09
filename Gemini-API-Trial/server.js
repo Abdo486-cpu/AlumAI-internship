@@ -115,6 +115,23 @@ const getQuery = async (req, res) => {
     let morethan = false;
     if (documents.length > 5) {
       morethan = true;
+      const csvStream = csv.format({ headers: true });
+
+      const writableStream = fs.createWriteStream(
+        "frontend/public/files/export/users.csv"
+      );
+
+      csvStream.pipe(writableStream);
+
+      if (documents.length > 0) {
+        documents.map((user) => {
+          csvStream.write({
+            individual: user.content,
+          });
+        });
+      }
+      // csvStream.end();
+      writableStream.end();
     }
 
     for (let i = 0; i < documents.length; i++) {
@@ -155,7 +172,7 @@ const getQuery = async (req, res) => {
         bot: bothistory,
       })
       .eq("username", username);
-    res.send(text); // Send the response as text
+    res.send({ content: text, downloadUrl: `/files/export/users.csv` }); // Send the response as text
   } catch (error) {
     console.error("Error handling query:", error);
     res.status(500).send("Internal Server Error");
