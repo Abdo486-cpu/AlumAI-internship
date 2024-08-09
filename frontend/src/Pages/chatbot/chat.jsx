@@ -16,7 +16,7 @@ import logoAvatar from "../../Images/AlumAIAvatar.png";
 import { DownloadLink } from "./testfile";
 
 const username = localStorage.getItem("username");
-// let downloadUrl = "";
+let downloadUrl = "";
 // axios
 //   .get("http://localhost:3006/test")
 //   .then(({ data }) => {
