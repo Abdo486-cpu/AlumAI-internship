@@ -1,10 +1,5 @@
 import React from 'react';
-<<<<<<< Updated upstream
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-// import { Flex } from '@chakra-ui/react';
-=======
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
->>>>>>> Stashed changes
 
 // Pages
 import ChatBot from './Pages/chatbot/chat';
