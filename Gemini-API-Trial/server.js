@@ -123,6 +123,38 @@ const getQuery = async (req, res) => {
 
       csvStream.pipe(writableStream);
 
+      // if (documents.length > 0) {
+      //   documents.map((user) => {
+      //     const content = user.content;
+      
+      //     // Extract data using regex or string manipulation
+      //     const profileUrlMatch = content.match(/Linkedin Profile:\((.*?)\)/);
+      //     const fullNameMatch = content.match(/fullname:\((.*?)\)/);
+      //     const dobMatch = content.match(/DOB:\s?\((.*?)\)/);
+      //     const emailMatch = content.match(/email:\((.*?)\)/);
+      //     const locationMatch = content.match(/location:\((.*?)\)/);
+      //     const companiesMatch = content.match(/companies:\((.*?)\)/);
+      //     const positionsMatch = content.match(/positions:\((.*?)\)/);
+      //     const currentRoleMatch = content.match(/current role:\((.*?)\)/);
+      //     const degreeMatch = content.match(/degree:\((.*?)\)/);
+      //     const graduationYearsMatch = content.match(/graduation year:\((.*?)\)/);
+      
+      //     // Write each field into the corresponding CSV column
+      //     csvStream.write({
+      //       'LinkedIn Profile': profileUrlMatch ? profileUrlMatch[1] : '',
+      //       'Full Name': fullNameMatch ? fullNameMatch[1] : '',
+      //       'Date of Birth': dobMatch ? dobMatch[1] : '',
+      //       'Email': emailMatch ? emailMatch[1] : '',
+      //       'Location': locationMatch ? locationMatch[1] : '',
+      //       'Companies': companiesMatch ? companiesMatch[1] : '',
+      //       'Positions': positionsMatch ? positionsMatch[1] : '',
+      //       'Current Role': currentRoleMatch ? currentRoleMatch[1] : '',
+      //       'Degree': degreeMatch ? degreeMatch[1] : '',
+      //       'Graduation Year': graduationYearsMatch ? graduationYearsMatch[1] : '',
+      //     });
+      //   });
+      // }
+
       if (documents.length > 0) {
         documents.map((user) => {
           csvStream.write({
@@ -138,6 +170,48 @@ const getQuery = async (req, res) => {
       const document = documents[i];
       contextText.push(document.content);
     }
+
+
+    // let prompt = stripIndent`${oneLine`
+    //   You are a representative that is very helpful when it comes to talking about the AlumAI database! Only ever answer truthfully and be as helpful as you can! 
+    //   For any question related to specific fields (e.g., profileURL, fullName, dob, email, location, companies, positions, currentRole, degree, graduationYears), 
+    //   focus your answer on the corresponding part in the database.
+      
+    
+    //   For any question related to specific fields, focus your answer on the corresponding part in the database, and make sure to search in a case-insensitive manner:
+    //   - If the question includes terms like "company," "companies," or "worked at," search only in the "companies" field.
+    //   - If the question includes terms like "name" or "person named," search only in the "fullName" or "lastName" fields.
+    //   - If the question includes terms like "date of birth," "dob," or "born in," search only in the "dob" field.
+    //   - If the question includes terms like "email," "contact," or "email address," search only in the "email" field.
+    //   - If the question includes terms like "location," "based in," or "lives in," search only in the "location" field.
+    //   - If the question includes terms like "position," "job title," or "role," search only in the "positions" field.
+    //   - If the question includes terms like "current role" or "current position," search only in the "currentRole" field.
+    //   - If the question includes terms like "degree" or "studied," search only in the "degree" field.
+    //   - If the question includes terms like "graduation year" or "graduated in," search only in the "graduationYears" field.
+    //   - If the question includes terms like "profile," "profile URL," or "LinkedIn," search only in the "profileURL" field.
+
+    //   - If the question involves a company or companies, strictly focus on the "companies" field and ignore any similarities with names.
+    //   - If the question involves an individual's name, search within the "fullName" or "firstName" and "lastName" fields only.
+    //   - For questions related to date of birth (e.g., born year, DOB), search within the "dob" field.
+    //   - For each specific field (profileURL, fullName, dob, email, location, companies, positions, currentRole, degree, graduationYears), 
+    //     provide an answer based solely on the data in that specific field.
+    
+    //   -If the question is related to multiple fields, provide a brief answer for each field. 
+    //   -If the question is related to a specific individual, provide a brief answer for that individual. 
+    //   -If the question is related to multiple individuals, provide a brief answer for each individual.
+    
+    //   Please format the response using HTML tags like <br /> <li> <p> <h> <b>, and ensure there is adequate space between objects for better readability.`}
+    //   Context sections:
+    //   ${contextText}
+    //   Question: """
+    //   ${query}
+    //   """
+    //   Here is chat History: """
+    //   ${history}
+    //   """
+    //   Answer as simple text (only show a max of 5 results):
+    // `;
+    
 
     let prompt = stripIndent`${oneLine`
       You are a representative that is very helpful when it comes to talking about AlumAI database! Only ever answer
