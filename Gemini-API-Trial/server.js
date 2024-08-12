@@ -192,6 +192,9 @@ const getQuery = async (req, res) => {
       focus your answer on the corresponding part in the database.
 
       For any question related to specific fields, focus your answer on the corresponding part in the database, and make sure to search in a case-insensitive manner:
+      - If the question asks "provide me with the details of Mohan bhyravabhotla " search only in the "fullName" field.
+      - If the question asks "Can you list alumni who currently work at Oracle?" search in the company field on a company has the name "Oracle"
+      - If the question is about "people who worked at a company called Hill," focus on the "companies" field.
       - If the question includes terms like "company," "companies," or "worked at," search only in the "companies" field.
       - If the question includes terms like "name" or "person named," search only in the "fullName" or "lastName" fields.
       - If the question includes terms like "date of birth," "dob," or "born in," search only in the "dob" field.

@@ -1,0 +1,264 @@
+.username-sign-in {
+  align-items: center;
+  background-color: #ffffff; /* Optional: keep the white background as a fallback */
+  background-image: url('./img/bottom-gradient.png'); /* Add your image here */
+  background-size: cover; /* Ensures the image covers the entire background */
+  background-position: center; /* Centers the image */
+  background-repeat: no-repeat; /* Prevents the image from repeating */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100vh;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0px 37px;
+  position: relative;
+}
+
+.username-sign-in .bottom-gradient {
+  align-self: stretch;
+  height: 935px;
+  position: relative;
+  width: 100%;
+}
+
+.username-sign-in .logo-container {
+  position: absolute;
+  top: 5px; /* Adjust the top position as needed */
+  left: 45px; /* Adjust the left position as needed */
+  height: 125px;
+  width: 198px;
+}
+
+.username-sign-in .div-2-HomePage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.username-sign-in .text-wrapper-2-HomePage{
+  color: #ffffff;
+  font-family: "PP Rader-Bold", Helvetica;
+  font-size: 46px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 126px;
+  position: absolute;
+  top: -1px;
+  left: 0;
+  white-space: nowrap;
+  width: 146px;
+}
+
+.username-sign-in .text-wrapper-3-HomePage {
+  -webkit-text-stroke: 2px #efefef;
+  color: transparent;
+  font-family: "PP Rader-BoldItalic", Helvetica;
+  font-size: 46px;
+  font-style: italic;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 126px;
+  position: absolute;
+  top: 0;
+  left: 130px;
+  white-space: nowrap;
+  width: 146px;
+}
+
+.username-sign-in .text-wrapper-2-HomePage {
+  margin-bottom: 0;
+}
+
+.username-sign-in .text-wrapper-3-HomePage {
+  margin-top: 0;
+}
+
+.username-sign-in .frame {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 590px;
+  left: 476px;
+  padding: 31px 103px;
+  position: absolute;
+  top: 172px;
+  width: 488px;
+}
+
+.username-sign-in .sign-in-popup {
+  height: 590px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 492px;
+}
+
+.username-sign-in .overlap {
+  height: 590px;
+  position: relative;
+  width: 490px;
+}
+
+.username-sign-in .group {
+  height: 590px;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 490px;
+}
+
+.username-sign-in .overlap-group {
+  background-color: #ffffff;
+  border-radius: 30px;
+  height: 590px;
+  position: relative;
+  width: 488px;
+}
+
+.username-sign-in .text-wrapper {
+  color: #ffffff;
+  font-family: var(--SMALLER-BBUTTONS-font-family);
+  font-size: var(--SMALLER-BBUTTONS-font-size);
+  font-style: var(--SMALLER-BBUTTONS-font-style);
+  font-weight: var(--SMALLER-BBUTTONS-font-weight);
+  height: 42px;
+  left: 197px;
+  letter-spacing: var(--SMALLER-BBUTTONS-letter-spacing);
+  line-height: var(--SMALLER-BBUTTONS-line-height);
+  position: absolute;
+  top: 395px;
+  white-space: nowrap;
+  width: 103px;
+}
+
+.username-sign-in .div {
+  color: #ffffff;
+  font-family: var(--SMALLER-BBUTTONS-font-family);
+  font-size: var(--SMALLER-BBUTTONS-font-size);
+  font-style: var(--SMALLER-BBUTTONS-font-style);
+  font-weight: var(--SMALLER-BBUTTONS-font-weight);
+  height: 26px;
+  left: 208px;
+  letter-spacing: var(--SMALLER-BBUTTONS-letter-spacing);
+  line-height: var(--SMALLER-BBUTTONS-line-height);
+  position: absolute;
+  text-align: center;
+  top: 429px;
+  white-space: nowrap;
+  width: 68px;
+}
+
+.username-sign-in .text-wrapper-2 {
+  color: #000000;
+  font-family: "Poppins", Helvetica;
+  font-size: 32px;
+  font-weight: 700;
+  height: 21px;
+  left: 81px;
+  letter-spacing: 0;
+  line-height: 40px;
+  position: absolute;
+  text-align: center;
+  top: 219px;
+  white-space: nowrap;
+  width: 327px;
+}
+
+.username-sign-in .div-wrapper {
+  align-items: center;
+  background-color: #d9d9d9;
+  border-radius: 3px;
+  display: flex;
+  gap: 10px;
+  height: 52px;
+  left: 96px;
+  padding: 13px 18px;
+  position: absolute;
+  top: 283px;
+  width: 292px;
+}
+
+.username-sign-in .frame-2 {
+  align-items: center;
+  background-color: #d9d9d9;
+  border-radius: 3px;
+  display: flex;
+  gap: 10px;
+  height: 52px;
+  left: 96px;
+  padding: 10px 18px;
+  position: absolute;
+  top: 346px;
+  width: 292px;
+}
+
+.username-sign-in .text-wrapper-3,
+.username-sign-in .text-wrapper-4 {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  font-family: var(--SMALLER-BBUTTONS-font-family);
+  font-size: var(--SMALLER-BBUTTONS-font-size);
+  color: #000000;
+}
+
+.username-sign-in .alumai-logo {
+  height: 101.5px;
+  margin-right: -1.5px;
+  position: relative;
+  width: 283.5px;
+}
+
+.username-sign-in .frame-3 {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  height: 42px;
+  justify-content: center;
+  left: 595px;
+  padding: 7px 92px;
+  position: absolute;
+  top: 614px;
+  width: 251px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.username-sign-in .GREEN-TRY-TRY-TRY-instance {
+  background-color: #5661f6 !important;
+  border-color: #4218ff !important;
+  box-shadow: 0px 17.92px 167.9px 9px #57c47880, 0px -2px 53.5px 15px #4318ff47 !important;
+  height: 42px !important;
+  left: 0 !important;
+  position: absolute !important;
+  top: 0 !important;
+  width: 251px !important;
+}
+
+.username-sign-in .frame-3:hover {
+  background-color: #3d4cd7;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.username-sign-in .text-wrapper-5 {
+  color: #ffffff;
+  font-family: var(--SMALLER-BBUTTONS-font-family);
+  font-size: var(--SMALLER-BBUTTONS-font-size);
+  font-style: var(--SMALLER-BBUTTONS-font-style);
+  font-weight: var(--SMALLER-BBUTTONS-font-weight);
+  height: 26px;
+  letter-spacing: var(--SMALLER-BBUTTONS-letter-spacing);
+  line-height: var(--SMALLER-BBUTTONS-line-height);
+  margin-left: -0.5px;
+  margin-right: -0.5px;
+  position: relative;
+  text-align: center;
+  white-space: nowrap;
+  width: 67.89px;
+}

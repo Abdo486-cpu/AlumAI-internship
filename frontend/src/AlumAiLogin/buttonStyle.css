@@ -1,0 +1,13 @@
+.GREEN-TRY-TRY-TRY {
+  border: 4px solid;
+  border-color: #52c780;
+  border-radius: 50px;
+  height: 64px;
+  width: 198px;
+}
+
+.GREEN-TRY-TRY-TRY:hover {
+  background-color: #57c478;
+  border-color: #5ac976;
+  box-shadow: var(--neon-green);
+}

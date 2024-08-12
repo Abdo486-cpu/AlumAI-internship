@@ -1,0 +1,1 @@
+export { AlumAichatbot } from "./AlumAichatbot";
